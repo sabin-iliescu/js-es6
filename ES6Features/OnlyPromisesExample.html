@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Todo and User Data - Promises</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      h1 {
+        color: #333;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #f4f4f4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Todo and User Data - Promises</h1>
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data rows will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      // Fetch a todo item using Promises
+      fetch('https://jsonplaceholder.typicode.com/todos/1')
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch todo');
+          }
+          return response.json();
+        })
+        .then((todo) => {
+          console.log('Todo:', todo);
+          // Using the todo's userId, fetch the associated user data
+          return fetch(
+            `https://jsonplaceholder.typicode.com/users/${todo.userId}`
+          )
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error('Failed to fetch user');
+              }
+              return response.json();
+            })
+            .then((user) => {
+              console.log('User:', user);
+              const todoData = [
+                { property: 'Todo ID', value: todo.id },
+                { property: 'Todo Title', value: todo.title },
+                { property: 'Completed', value: todo.completed },
+                { property: 'User ID', value: todo.userId },
+              ];
+              const userData = [
+                { property: 'User Name', value: user.name },
+                { property: 'User Email', value: user.email },
+                { property: 'User Phone', value: user.phone },
+                { property: 'User Website', value: user.website },
+              ];
+
+              const combinedData = [...todoData, ...userData];
+
+              const tableBody = document.querySelector('#data-table tbody');
+              tableBody.innerHTML = '';
+
+              combinedData.forEach((item) => {
+                const row = document.createElement('tr');
+
+                const propertyCell = document.createElement('td');
+                propertyCell.textContent = item.property;
+                row.appendChild(propertyCell);
+
+                const valueCell = document.createElement('td');
+                valueCell.textContent = item.value;
+                row.appendChild(valueCell);
+
+                tableBody.appendChild(row);
+              });
+            });
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+    </script>
+  </body>
+</html>
